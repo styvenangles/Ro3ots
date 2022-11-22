@@ -2,6 +2,7 @@
 
 #include "Ro3otsCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,8 +17,6 @@ ARo3otsCharacter::ARo3otsCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	// set our turn rate for input
-	TurnRateGamepad = 50.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -26,21 +25,16 @@ ARo3otsCharacter::ARo3otsCharacter()
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
-
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 700.f;
-	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->TargetArmLength = 800.0f; // The camera follows at this distance behind the character
+	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
+	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -49,81 +43,51 @@ ARo3otsCharacter::ARo3otsCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	// Activate ticking in order to update the cursor every frame.
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
-void ARo3otsCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void ARo3otsCharacter::Tick(float DeltaSeconds)
 {
-	// Set up gameplay key bindings
-	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	Super::Tick(DeltaSeconds);
+	// We set up a line trace from our current location to a point 1000cm ahead of us
+	FVector TraceStart = GetActorLocation();
+	FVector TraceEnd = GetActorLocation();
 
-	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &ARo3otsCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("Move Right / Left", this, &ARo3otsCharacter::MoveRight);
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(GetOwner());
 
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &ARo3otsCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &ARo3otsCharacter::LookUpAtRate);
+	TArray<FHitResult> HitArray;
 
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARo3otsCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ARo3otsCharacter::TouchStopped);
-}
+	// You can use FCollisionQueryParams to further configure the query
+	// Here we add ourselves to the ignored list so we won't block the trace
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
 
-void ARo3otsCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	Jump();
-}
+	const bool Hit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), TraceStart, TraceEnd, TraceRadius, UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitArray, true, FLinearColor::Green, FLinearColor::Red, 0);
 
-void ARo3otsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	StopJumping();
-}
+	// You can use DrawDebug helpers and the log to help visualize and debug your trace queries.
+	DrawDebugSphere(GetWorld(), TraceStart, TraceRadius, 18.0f, FColor::Green, false, -1, 0, 1);
 
-void ARo3otsCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
-}
-
-void ARo3otsCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
-}
-
-void ARo3otsCharacter::MoveForward(float Value)
-{
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if (Hit)
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		for(const FHitResult HitResult : HitArray)
+		{
+			if(HitResult.GetActor()->ActorHasTag(TEXT("Enemy")))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
+				AttackEnemy(HitResult.GetActor());
+			}
+		}
 	}
 }
 
-void ARo3otsCharacter::MoveRight(float Value)
+void ARo3otsCharacter::SetBooleanVariable(FString variableName)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if (variableName == TEXT("isMovingToAttack"))
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		isMovingToAttack = (isMovingToAttack == true ? false : true);
 	}
 }
