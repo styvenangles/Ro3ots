@@ -67,16 +67,24 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 	QueryParams.AddIgnoredActor(this);
 
 	const bool Hit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), TraceStart, TraceEnd, TraceRadius, UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitArray, true, FLinearColor::Green, FLinearColor::Red, 0);
+<<<<<<< HEAD
 
 	// You can use DrawDebug helpers and the log to help visualize and debug your trace queries.
 	DrawDebugSphere(GetWorld(), TraceStart, TraceRadius, 18.0f, FColor::Green, false, -1, 0, 1);
 
+=======
+
+	// You can use DrawDebug helpers and the log to help visualize and debug your trace queries.
+	DrawDebugSphere(GetWorld(), TraceStart, TraceRadius, 18.0f, FColor::Green, false, -1, 0, 1);
+
+>>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
 	if (Hit)
 	{
 		for(const FHitResult HitResult : HitArray)
 		{
 			if(HitResult.GetActor()->ActorHasTag(TEXT("Enemy")))
 			{
+<<<<<<< HEAD
 				//GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
 				
 				FTimerDelegate TimerDelegate;
@@ -84,16 +92,28 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 
 				TimerDelegate.BindUFunction(this, FName("AttackSelectedEnemy"), selectedActor);
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 1, false, AttackSpeed);
+=======
+				GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
+				AttackEnemy(HitResult.GetActor());
+>>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
 			}
 		}
 	}
 }
 
+<<<<<<< HEAD
 void ARo3otsCharacter::SetBooleanVariable(FString variableName, bool valToSet)
 {
 	if (variableName == TEXT("isMovingToAttack"))
 	{
 		isMovingToAttack = valToSet;
+=======
+void ARo3otsCharacter::SetBooleanVariable(FString variableName)
+{
+	if (variableName == TEXT("isMovingToAttack"))
+	{
+		isMovingToAttack = (isMovingToAttack == true ? false : true);
+>>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
 	}
 }
 

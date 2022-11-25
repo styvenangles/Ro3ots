@@ -27,6 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 		float TraceRadius = 100.0f;
 
+<<<<<<< HEAD
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
 		int Hp;
 
@@ -62,6 +63,22 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
+=======
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		bool isMovingToAttack = false;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void AttackEnemy(AActor* Enemy);
+
+	UFUNCTION()
+		void SetBooleanVariable(FString variableName);
+
+private:
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class USpringArmComponent* CameraBoom;
+
+>>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;

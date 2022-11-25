@@ -7,7 +7,10 @@
 #include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+<<<<<<< HEAD
 #include "Ro3otsCharacter.h"
+=======
+>>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
 #include "Engine/World.h"
 
 ARo3otsPlayerController::ARo3otsPlayerController()
@@ -91,6 +94,7 @@ void ARo3otsPlayerController::OnSetDestinationReleased()
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, HitLocation);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, HitLocation, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 
+<<<<<<< HEAD
 		// Find character in world
 		ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 		ARo3otsCharacter* robotPC = Cast<ARo3otsCharacter>(robotCharacter);
@@ -106,6 +110,13 @@ void ARo3otsPlayerController::OnSetDestinationReleased()
 			robotPC->SetBooleanVariable("isMovingToAttack", false);
 		}
 		} 
+=======
+		if(Hit.GetActor()->ActorHasTag(TEXT("Enemy")))
+		{
+			ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(),0);
+			GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *robotCharacter->GetName()));
+		}
+>>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
 	}
 }
 
