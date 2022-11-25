@@ -77,17 +77,28 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 		{
 			if(HitResult.GetActor()->ActorHasTag(TEXT("Enemy")))
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
-				AttackEnemy(HitResult.GetActor());
+				//GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
+				
+				FTimerDelegate TimerDelegate;
+				FTimerHandle TimerHandle;
+
+				TimerDelegate.BindUFunction(this, FName("AttackSelectedEnemy"), selectedActor);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 1, false, AttackSpeed);
 			}
 		}
 	}
 }
 
-void ARo3otsCharacter::SetBooleanVariable(FString variableName)
+void ARo3otsCharacter::SetBooleanVariable(FString variableName, bool valToSet)
 {
 	if (variableName == TEXT("isMovingToAttack"))
 	{
-		isMovingToAttack = (isMovingToAttack == true ? false : true);
+		isMovingToAttack = valToSet;
 	}
+}
+
+void ARo3otsCharacter::AttackSelectedEnemy(AActor* Enemy)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Attacking")));
+
 }

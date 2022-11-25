@@ -27,14 +27,35 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 		float TraceRadius = 100.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		int Hp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		float AttackSpeed = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		float AttackDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		float AttackRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		float MouvementSpeed;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		bool isMovingToAttack = false;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void AttackEnemy(AActor* Enemy);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		bool isInRangeToAttack = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
+		AActor* selectedActor;
 
 	UFUNCTION()
-		void SetBooleanVariable(FString variableName);
+		void AttackSelectedEnemy(AActor* Enemy);
+
+	UFUNCTION()
+		void SetBooleanVariable(FString variableName, bool valToSet);
 
 private:
 	/** Camera boom positioning the camera behind the character */

@@ -7,6 +7,7 @@
 #include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Ro3otsCharacter.h"
 #include "Engine/World.h"
 
 ARo3otsPlayerController::ARo3otsPlayerController()
@@ -90,11 +91,21 @@ void ARo3otsPlayerController::OnSetDestinationReleased()
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, HitLocation);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, HitLocation, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 
+		// Find character in world
+		ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		ARo3otsCharacter* robotPC = Cast<ARo3otsCharacter>(robotCharacter);
+		if (robotPC->IsValidLowLevel())
+		{
 		if(Hit.GetActor()->ActorHasTag(TEXT("Enemy")))
 		{
-			ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(),0);
-			GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *robotCharacter->GetName()));
+			robotPC->selectedActor = Hit.GetActor();
+			//GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *robotPC->GetName()));
 		}
+		else
+		{
+			robotPC->SetBooleanVariable("isMovingToAttack", false);
+		}
+		} 
 	}
 }
 
