@@ -24,11 +24,35 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 		TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
 
+	UFUNCTION()
+		void AttackSelectedEnemy(AActor* Enemy);
+
+	UFUNCTION()
+		void SetBooleanVariable(FString variableName, bool valToSet);
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Modify Health")
+		void takeDamage(int dmg);
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Modify Health")
+		void healHealth(int heal);
+
+private:
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UCameraComponent* FollowCamera;
+
 	UPROPERTY(EditAnywhere, Category = "Trace")
 		float TraceRadius = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
 		int Hp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		int MaxHp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
 		float AttackSpeed = 1.0f;
@@ -50,21 +74,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
 		AActor* selectedActor;
-
-	UFUNCTION()
-		void AttackSelectedEnemy(AActor* Enemy);
-
-	UFUNCTION()
-		void SetBooleanVariable(FString variableName, bool valToSet);
-
-private:
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
-
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
 
 };
 

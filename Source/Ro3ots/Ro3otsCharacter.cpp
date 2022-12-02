@@ -102,3 +102,21 @@ void ARo3otsCharacter::AttackSelectedEnemy(AActor* Enemy)
 	GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Attacking")));
 
 }
+
+void ARo3otsCharacter::takeDamage(int dmg)
+{
+	this->Hp -= dmg;
+	if (this->Hp <= 0)
+	{
+		this->Hp = 0;
+	}
+}
+
+void ARo3otsCharacter::healHealth(int heal)
+{
+	this->Hp += heal;
+	if (this->Hp >= this->MaxHp)
+	{
+		this->Hp = this->MaxHp;
+	}
+}
