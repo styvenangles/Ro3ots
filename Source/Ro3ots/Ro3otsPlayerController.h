@@ -5,14 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttackSystem.h"
 #include "GameFramework/PlayerController.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #include "Ro3otsCharacter.h"
->>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
-=======
-#include "Ro3otsCharacter.h"
->>>>>>> feature/DEV/AutoAttack
 #include "Ro3otsPlayerController.generated.h"
 
 /**
