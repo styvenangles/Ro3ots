@@ -17,7 +17,6 @@ ARo3otsCharacter::ARo3otsCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -49,10 +48,22 @@ ARo3otsCharacter::ARo3otsCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
+void ARo3otsCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+
 void ARo3otsCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	// We set up a line trace from our current location to a point 1000cm ahead of us
+	interval = DeltaSeconds;
+
+	attackTimer += DeltaSeconds;
+
+	AttackSelectedEnemy(targetActor);
+
 	FVector TraceStart = GetActorLocation();
 	FVector TraceEnd = GetActorLocation();
 
@@ -61,15 +72,12 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 
 	TArray<FHitResult> HitArray;
 
-	// You can use FCollisionQueryParams to further configure the query
-	// Here we add ourselves to the ignored list so we won't block the trace
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
 	const bool Hit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), TraceStart, TraceEnd, TraceRadius, UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitArray, true, FLinearColor::Green, FLinearColor::Red, 0);
 <<<<<<< HEAD
 
-	// You can use DrawDebug helpers and the log to help visualize and debug your trace queries.
 	DrawDebugSphere(GetWorld(), TraceStart, TraceRadius, 18.0f, FColor::Green, false, -1, 0, 1);
 
 =======
@@ -82,8 +90,9 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 	{
 		for(const FHitResult HitResult : HitArray)
 		{
-			if(HitResult.GetActor()->ActorHasTag(TEXT("Enemy")))
+			if (HitResult.GetActor()->ActorHasTag("Enemy"))
 			{
+<<<<<<< HEAD
 <<<<<<< HEAD
 				//GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
 				
@@ -96,11 +105,14 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 				GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *HitResult.GetActor()->GetName()));
 				AttackEnemy(HitResult.GetActor());
 >>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
+=======
+				IAttackSystem::Execute_InRangeEnemy(this->GetController(), HitResult.GetActor(), true);
+>>>>>>> feature/DEV/AutoAttack
 			}
 		}
 	}
-}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void ARo3otsCharacter::SetBooleanVariable(FString variableName, bool valToSet)
 {
@@ -114,11 +126,26 @@ void ARo3otsCharacter::SetBooleanVariable(FString variableName)
 	{
 		isMovingToAttack = (isMovingToAttack == true ? false : true);
 >>>>>>> 1bbaec5 (# This is a combination of 2 commits.)
+=======
+	if (attackTimer >= (1 / AttackSpeed) && isInRangeToAttack == true)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("I'm in range and I probably can attack!"));
+		canAttack = true;
+	} else
+	{
+		canAttack = false;
+>>>>>>> feature/DEV/AutoAttack
 	}
+
 }
 
 void ARo3otsCharacter::AttackSelectedEnemy(AActor* Enemy)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Attacking")));
-
+	if (canAttack && Enemy != nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("I can attack!"));
+		IAttackSystem::Execute_AttackEnemy(this, Enemy, AttackDamage, true);
+		attackTimer = 0.0f;
+		canAttack = false;
+	}
 }
