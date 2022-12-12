@@ -7,9 +7,9 @@
 #include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Ro3otsCharacter.h"
 #include "Engine/World.h"
 
+#pragma region OVERRIDES
 ARo3otsPlayerController::ARo3otsPlayerController()
 {
 	bShowMouseCursor = true;
@@ -65,6 +65,10 @@ void ARo3otsPlayerController::SetupInputComponent()
 
 }
 
+#pragma endregion OVERRIDES
+
+#pragma region INPUT_SYSTEM
+
 void ARo3otsPlayerController::OnSetDestinationPressed()
 {
 	// We flag that the input is being pressed
@@ -81,31 +85,15 @@ void ARo3otsPlayerController::OnSetDestinationReleased()
 	// If it was a short press
 	if (FollowTime <= ShortPressThreshold)
 	{
-		// We look for the location in the world where the player has pressed the input
 		FVector HitLocation = FVector::ZeroVector;
 		FHitResult Hit;
 		GetHitResultUnderCursor(ECC_Visibility, true, Hit);
 		HitLocation = Hit.Location;
 
-		// We move there and spawn some particles
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, HitLocation);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, HitLocation, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 
-		// Find character in world
-		ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-		ARo3otsCharacter* robotPC = Cast<ARo3otsCharacter>(robotCharacter);
-		if (robotPC->IsValidLowLevel())
-		{
-		if(Hit.GetActor()->ActorHasTag(TEXT("Enemy")))
-		{
-			robotPC->selectedActor = Hit.GetActor();
-			//GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Orange, FString::Printf(TEXT("Hit : %s"), *robotPC->GetName()));
-		}
-		else
-		{
-			robotPC->SetBooleanVariable("isMovingToAttack", false);
-		}
-		} 
+		selectedActor = Hit.GetActor();
 	}
 }
 
@@ -120,3 +108,31 @@ void ARo3otsPlayerController::OnTouchReleased(const ETouchIndex::Type FingerInde
 	bIsTouch = false;
 	OnSetDestinationReleased();
 }
+
+#pragma region INPUT_SYSTEM
+
+#pragma region INTERFACE_SYSTEM
+void ARo3otsPlayerController::TargetEnemy_Implementation(AActor* Enemy, FVector Location, bool isPlayer)
+{
+}
+
+void ARo3otsPlayerController::InRangeEnemy_Implementation(AActor* Enemy, bool isPlayer)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("I'm in range!"));
+	// Find character in world
+	ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	robotPC = Cast<ARo3otsCharacter>(robotCharacter);
+	if (Enemy != nullptr && Enemy == selectedActor)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("This is the good actor!"));
+		robotPC->isInRangeToAttack = true;
+		robotPC->targetActor = Enemy;
+	} else
+	{
+		robotPC->isInRangeToAttack = false;
+		robotPC->targetActor = nullptr;
+	}
+}
+
+
+#pragma region INTERFACE_SYSTEM

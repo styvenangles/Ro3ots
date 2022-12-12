@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/World.h"
+#include "AttackSystem.h"
 #include "Ro3otsCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -16,10 +18,15 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void BeginPlay() override;
+
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	FTimerDelegate TimerDelegate;
+	FTimerHandle TimerHandle;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
 		TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
@@ -43,19 +50,22 @@ public:
 		float MouvementSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-		bool isMovingToAttack = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		bool isInRangeToAttack = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		bool canAttack = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		int attackInstances = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
-		AActor* selectedActor;
+		AActor* targetActor = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
+		FVector actorLocation;
 
 	UFUNCTION()
 		void AttackSelectedEnemy(AActor* Enemy);
-
-	UFUNCTION()
-		void SetBooleanVariable(FString variableName, bool valToSet);
 
 private:
 	/** Camera boom positioning the camera behind the character */
@@ -66,5 +76,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
+	UPROPERTY()
+		float interval;
+
+	float attackTimer = 0.0f;
+		
 };
 
