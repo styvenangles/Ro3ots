@@ -47,6 +47,9 @@ public:
 		bool isMovingToAttack = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		bool canAttack = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		bool isInRangeToAttack = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
@@ -63,8 +66,6 @@ private:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
-
-	bool canAttack = false;
 
 	float attackTimer = 0.0f;
 
