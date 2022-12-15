@@ -124,6 +124,7 @@ void ARo3otsCharacter::takeDamage(int dmg)
 	if (this->Hp <= 0)
 	{
 		this->Hp = 0;
+		this->Destroy();
 	}
 }
 

@@ -32,6 +32,9 @@ public:
 		int Hp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		int MaxHp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
 		float AttackSpeed = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
@@ -55,8 +58,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
 		AActor* targetActor;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void AttackSelectedEnemy(AActor* Enemy);
+
+	UFUNCTION(BlueprintCallable, Category = "Manipulate Stats")
+		void takeDamage(int name);
+
+	UFUNCTION(BlueprintCallable, Category = "Manipulate Stats")
+		void healHealth(int heal);
 
 private:
 	/** Camera boom positioning the camera behind the character */
