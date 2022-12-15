@@ -118,13 +118,11 @@ void ARo3otsPlayerController::TargetEnemy_Implementation(AActor* Enemy, FVector 
 
 void ARo3otsPlayerController::InRangeEnemy_Implementation(AActor* Enemy, bool isPlayer)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("I'm in range!"));
 	// Find character in world
 	ACharacter* robotCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	robotPC = Cast<ARo3otsCharacter>(robotCharacter);
 	if (Enemy != nullptr && Enemy == selectedActor)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("This is the good actor!"));
 		robotPC->isInRangeToAttack = true;
 		robotPC->targetActor = Enemy;
 	} else

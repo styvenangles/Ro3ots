@@ -32,10 +32,13 @@ public:
 		int Hp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
+		int MaxHp = 80.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
 		float AttackSpeed = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
-		float AttackDamage;
+		float AttackDamage = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variable")
 		float AttackRange;
@@ -54,6 +57,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
 		AActor* targetActor;
+
+	UFUNCTION(BlueprintCallable, Category = "Life")
+		void takeDamage(int dmg);
+
+	UFUNCTION(BlueprintCallable, Category = "Life")
+		void healHealth(int heal);
 
 	UFUNCTION()
 		void AttackSelectedEnemy(AActor* Enemy);

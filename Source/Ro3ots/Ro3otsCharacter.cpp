@@ -54,6 +54,8 @@ void ARo3otsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Hp = MaxHp;
+
 }
 
 
@@ -77,10 +79,6 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 	QueryParams.AddIgnoredActor(this);
 
 	const bool Hit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), TraceStart, TraceEnd, TraceRadius, UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitArray, true, FLinearColor::Green, FLinearColor::Red, 0);
-
-
-	// You can use DrawDebug helpers and the log to help visualize and debug your trace queries.
-	DrawDebugSphere(GetWorld(), TraceStart, TraceRadius, 18.0f, FColor::Green, false, -1, 0, 1);
 	
 	if (Hit)
 	{
@@ -98,7 +96,6 @@ void ARo3otsCharacter::Tick(float DeltaSeconds)
 
 	if (attackTimer >= (1 / AttackSpeed) && isInRangeToAttack == true)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("I'm in range and I probably can attack!"));
 		canAttack = true;
 	} else
 	{
@@ -111,7 +108,6 @@ void ARo3otsCharacter::AttackSelectedEnemy(AActor* Enemy)
 {
 	if (canAttack && Enemy != nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("I can attack!"));
 		IAttackSystem::Execute_AttackEnemy(this, Enemy, AttackDamage, true);
 		attackTimer = 0.0f;
 		canAttack = false;
